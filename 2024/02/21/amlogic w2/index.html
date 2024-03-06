@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>amlogic w2 驱动代码分析 | 乐观的lishan</title>
+  <meta name="keywords" content=" linux driver ">
+  <meta name="description" content="amlogic w2 驱动代码分析 | 乐观的lishan">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta property="og:type" content="website">
+<meta property="og:title" content="about">
+<meta property="og:url" content="https://lishan666.github.io/about/index.html">
+<meta property="og:site_name" content="乐观的lishan">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-05T14:45:49.000Z">
+<meta property="article:modified_time" content="2024-03-06T14:21:45.003Z">
+<meta property="article:author" content="李珊">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/sublime.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.1.1"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>李珊</span>
+</div>
+
+<div class="icon">
+    
+        
+    
+        
+            <a title="github"
+               href="https://github.com/lishan666/"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="csdn"
+               href="https://blog.csdn.net/lishan132/"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-csdn"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:1624693146@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
+            
+                <small>(4)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="网站设计">
+            
+            网站设计
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="无线驱动">
+            
+            无线驱动
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="4">
+<input type="hidden" id="yelog_site_word_count" value="7.8k">
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>hexo</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>linux driver</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 "
+           href="/2024/03/06/chengdu-scenic-spot/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="chengdu scenic spot">chengdu scenic spot</span>
+            <span class="post-date" title="2024-03-06 22:25:44">2024/03/06</span>
+        </a>
+        
+        
+        <a  class="全部文章 网站设计 "
+           href="/2024/03/05/github-node-hexo-build-blog/"
+           data-tag="hexo"
+           data-author="" >
+            <span class="post-title" title="github+node+hexo搭建静态博客">github+node+hexo搭建静态博客</span>
+            <span class="post-date" title="2024-03-05 00:21:19">2024/03/05</span>
+        </a>
+        
+        
+        <a  class="全部文章 无线驱动 "
+           href="/2024/03/04/realme-wlan-driver/"
+           data-tag="linux driver"
+           data-author="" >
+            <span class="post-title" title="realme-wlan-driver分析">realme-wlan-driver分析</span>
+            <span class="post-date" title="2024-03-04 16:21:57">2024/03/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 无线驱动 "
+           href="/2024/02/21/amlogic%20w2/"
+           data-tag="linux driver"
+           data-author="" >
+            <span class="post-title" title="amlogic w2 驱动代码分析">amlogic w2 驱动代码分析</span>
+            <span class="post-date" title="2024-02-21 10:00:14">2024/02/21</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-amlogic w2" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">amlogic w2 驱动代码分析</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="无线驱动">无线驱动</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color3">linux driver</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2024-03-06 22:21:45'>2024-02-21 10:00</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        <span>字数:5.6k</span>
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+        <span class="top-comment" title="跳转至评论区">
+            <a href="#comments">
+                评论:<span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </a>
+        </span>
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#amlogic-w2-%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">amlogic w2 驱动代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E7%94%A8%E7%9A%84%E5%86%85%E6%A0%B8%E5%85%B6%E5%AE%83%E6%96%87%E4%BB%B6"><span class="toc-text">引用的内核其它文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6-include"><span class="toc-text">头文件 include</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C-net"><span class="toc-text">网络 net</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E9%A9%B1%E5%8A%A8-base"><span class="toc-text">基础驱动 base</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A9%B1%E5%8A%A8-pci"><span class="toc-text">驱动 pci</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90%E8%AE%BE%E5%A4%87%E6%A0%91%E7%9A%84%E9%A9%B1%E5%8A%A8-of"><span class="toc-text">解析设备树的驱动 of</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-fs"><span class="toc-text">文件系统 fs</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E6%A0%91%E6%96%87%E4%BB%B6-arch"><span class="toc-text">设备树文件 arch</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#meson-sc2-dtsi"><span class="toc-text">meson-sc2.dtsi</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#meson-sc2-s905x4-ah212-drm-dts"><span class="toc-text">meson-sc2-s905x4-ah212-drm.dts</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#amlogic%E9%A9%B1%E5%8A%A8%E6%96%87%E4%BB%B6-drivers-amlogic-wifi"><span class="toc-text">amlogic驱动文件 drivers&#x2F;amlogic&#x2F;wifi</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#wifi-dt-init"><span class="toc-text">wifi_dt_init</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#platform-driver-register"><span class="toc-text">platform_driver_register</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#wifi-dev-probe"><span class="toc-text">wifi_dev_probe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#wifi-get-driver-data"><span class="toc-text">wifi_get_driver_data</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#wireless%E9%A9%B1%E5%8A%A8%E6%96%87%E4%BB%B6"><span class="toc-text">wireless驱动文件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#aml-drv%EF%BC%8852-1-%EF%BC%89"><span class="toc-text">aml_drv（52.1%）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#aml-drv-fullmac%EF%BC%8815-9-%EF%BC%89"><span class="toc-text">aml_drv&#x2F;fullmac（15.9%）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#aml-mod-init"><span class="toc-text">aml_mod_init</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#aml-cfg80211-init"><span class="toc-text">aml_cfg80211_init</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#wiphy-new-nm"><span class="toc-text">wiphy_new_nm</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#wiphy-priv"><span class="toc-text">wiphy_priv</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#aml-platform-get-dev"><span class="toc-text">aml_platform_get_dev</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#aml-interface-add"><span class="toc-text">aml_interface_add</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#aml-drv-aml-bus%EF%BC%887-8-%EF%BC%89"><span class="toc-text">aml_drv&#x2F;aml_bus（7.8%）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#aml-bus-intf-insmod"><span class="toc-text">aml_bus_intf_insmod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pci-register-driver"><span class="toc-text">pci_register_driver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#aml-pci-probe"><span class="toc-text">aml_pci_probe</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#common%EF%BC%8824-%EF%BC%89"><span class="toc-text">common（24%）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83brcmfmac"><span class="toc-text">参考brcmfmac</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="amlogic-w2-驱动代码分析"><a href="#amlogic-w2-驱动代码分析" class="headerlink" title="amlogic w2 驱动代码分析"></a>amlogic w2 驱动代码分析</h1><p>w2的驱动主要使用full mac方式完成，相关代码主要有3部分</p>
+<ul>
+<li>1）设备树文件，arch&#x2F;arm64&#x2F;boot&#x2F;dts&#x2F;amlogic</li>
+<li>2）amlogic驱动文件，drivers&#x2F;amlogic&#x2F;wifi</li>
+<li>3）wireless驱动文件，drivers&#x2F;net&#x2F;wireless&#x2F;amlogic&#x2F;w2</li>
+</ul>
+<h2 id="引用的内核其它文件"><a href="#引用的内核其它文件" class="headerlink" title="引用的内核其它文件"></a>引用的内核其它文件</h2><p>Z:\openwrt\openwrt_1207\openwrt\build_dir\target-aarch64_cortex-a55_musl\linux-amlogic_s905x4\linux-5.15.114&#x2F;fs&#x2F;sysfs&#x2F;symlink.c</p>
+<h3 id="头文件-include"><a href="#头文件-include" class="headerlink" title="头文件 include"></a>头文件 include</h3><pre><code class="c">include/linux
+    completion.h
+    dma-mapping.h
+    device.h
+    dev_printk.h
+    errno.h
+    gfp.h
+    interrupt.h
+    ieee80211.h
+    kernel.h
+    list.h
+    mutex.h
+    mod_devicetable.h
+    netdevice.h
+    of.h
+    pci_ids.h
+    pci.h
+    printk.h
+    preempt.h
+    platform_device.h
+    semaphore.h
+    spinlock.h
+    spinlock_types.h
+    sched.h
+    skbuff.h
+    stddef.h
+    slab.h
+    workqueue.h  
+    
+include/linux/mmc
+    sdio_func.h
+
+include/linux/byteorder
+    generic.h
+
+include/linux/raid
+    pq.h
+
+include/linux/device
+    driver.h
+    bus.h
+    
+include/net
+    addrconf.h
+    addrconf.h
+    cfg80211.h
+    ip.h
+    iw_handler.h
+    ieee80211_radiotap.h
+    mac80211.h
+    netlink.h
+    regulatory.h
+    sock.h
+    tcp.h
+    
+include/trace
+    trace_events.h
+    
+include/uapi/linux
+    netlink.h
+    nl80211.h
+    if_ether.h
+</code></pre>
+<h3 id="网络-net"><a href="#网络-net" class="headerlink" title="网络 net"></a>网络 net</h3><pre><code class="c">net/core
+    dev.c
+
+net/wireless
+    core.h
+    core.c
+    nl80211.c
+
+net/ipv4
+    devinet.c
+
+net/ipv6
+    addrconf_core.c
+</code></pre>
+<h3 id="基础驱动-base"><a href="#基础驱动-base" class="headerlink" title="基础驱动 base"></a>基础驱动 base</h3><pre><code>drivers/base
+    base.h
+    bus.c
+    class.c
+    driver.c
+    dd.c
+    platform.c
+</code></pre>
+<h3 id="驱动-pci"><a href="#驱动-pci" class="headerlink" title="驱动 pci"></a>驱动 pci</h3><pre><code class="c">drivers/pci
+    pci-driver.c
+</code></pre>
+<h3 id="解析设备树的驱动-of"><a href="#解析设备树的驱动-of" class="headerlink" title="解析设备树的驱动 of"></a>解析设备树的驱动 of</h3><pre><code class="c">drivers\of
+    base.c
+</code></pre>
+<h3 id="文件系统-fs"><a href="#文件系统-fs" class="headerlink" title="文件系统 fs"></a>文件系统 fs</h3><pre><code class="c">fs
+    char_dev.c
+    libfs.c
+</code></pre>
+<h1 id="设备树文件-arch"><a href="#设备树文件-arch" class="headerlink" title="设备树文件 arch"></a>设备树文件 arch</h1><pre><code>arch/arm64/boot/dts/amlogic
+    meson-sc2.dtsi
+    meson-sc2-s905x4-ah212-drm.dts
+</code></pre>
+<h2 id="meson-sc2-dtsi"><a href="#meson-sc2-dtsi" class="headerlink" title="meson-sc2.dtsi"></a>meson-sc2.dtsi</h2><pre><code class="dtd">//arch\arm64\boot\dts\amlogic\meson-sc2.dtsi
+/ &#123;
+    soc &#123;
+        compatible = &quot;simple-bus&quot;;
+
+    aml_wifi: aml_wifi &#123;
+        compatible = &quot;amlogic, aml-wifi&quot;;
+        status = &quot;disabled&quot;;
+        irq_trigger_type = &quot;IRQF_TRIGGER_LOW&quot;;
+        wifi_static_buf = &lt;2&gt;;  /* if use bcm wifi, config dhd_static_buf */
+        //pinctrl-0 = &lt;&amp;pwm_e_pins&gt;;
+        //pinctrl-names = &quot;default&quot;;
+        pwm_config = &lt;&amp;wifi_pwm_conf&gt;;
+    &#125;;
+
+    wifi_pwm_conf:wifi_pwm_conf&#123;
+        pwm_channel1_conf &#123;
+            pwms = &lt;&amp;pwm_ef 0 30550 0&gt;;
+            duty-cycle = &lt;15270&gt;;
+            times = &lt;8&gt;;
+        &#125;;
+        pwm_channel2_conf &#123;
+            pwms = &lt;&amp;pwm_ef 2 30500 0&gt;;
+            duty-cycle = &lt;15250&gt;;
+            times = &lt;12&gt;;
+        &#125;;
+    &#125;;
+&#125;;
+</code></pre>
+<h2 id="meson-sc2-s905x4-ah212-drm-dts"><a href="#meson-sc2-s905x4-ah212-drm-dts" class="headerlink" title="meson-sc2-s905x4-ah212-drm.dts"></a>meson-sc2-s905x4-ah212-drm.dts</h2><pre><code class="dtd">/dts-v1/;
+
+#include &quot;meson-sc2.dtsi&quot;
+/ &#123;
+    model = &quot;Amlogic&quot;;
+    amlogic-dt-id = &quot;sc2_s905x4_ah212&quot;;
+    compatible = &quot;amlogic, sc2&quot;;
+&#125;;
+
+&amp;aml_wifi&#123;
+        status = &quot;okay&quot;;
+        //interrupt-gpios = &lt;&amp;gpio  GPIOX_7  GPIO_ACTIVE_HIGH&gt;;
+        power_on-gpios = &lt;&amp;gpio   GPIOX_6  GPIO_ACTIVE_HIGH&gt;;
+&#125;;
+</code></pre>
+<h1 id="amlogic驱动文件-drivers-amlogic-wifi"><a href="#amlogic驱动文件-drivers-amlogic-wifi" class="headerlink" title="amlogic驱动文件 drivers&#x2F;amlogic&#x2F;wifi"></a>amlogic驱动文件 drivers&#x2F;amlogic&#x2F;wifi</h1><pre><code class="c">wc *.&#123;c,h&#125; | sort -n
+wc: &#39;*.h&#39;: No such file or directory
+  661  1820 20966 dhd_static_buf.c
+ 1136  2697 26627 wifi_dt.c
+ 1797  4517 47593 total
+
+MODULE_NAME = aml_wifi
+obj-$(CONFIG_AMLOGIC_WIFI) = $(MODULE_NAME).o
+$(MODULE_NAME)-y = wifi_dt.o dhd_static_buf.o
+</code></pre>
+<h2 id="wifi-dt-init"><a href="#wifi-dt-init" class="headerlink" title="wifi_dt_init"></a>wifi_dt_init</h2><p>加载aml_wifi.ko后的入口函数</p>
+<p>调用platform_driver_register函数，在platform设备总线上注册平台驱动程序，也就是aml_wifi驱动（struct platform_driver）</p>
+<p>将驱动的proble函数绑定为wifi_dev_probe</p>
+<pre><code class="c">//linux-5.15.114\drivers\amlogic\wifi\wifi_dt.c
+module_init(wifi_dt_init);
+
+static struct platform_driver wifi_plat_driver = &#123;
+    .probe = wifi_dev_probe,
+    .remove = wifi_dev_remove,
+    .driver = &#123;
+        .name = &quot;aml_wifi&quot;,
+        .owner = THIS_MODULE,
+        .of_match_table = wifi_match
+    &#125;,
+    .suspend = wifi_suspend,
+    .resume = wifi_resume,
+&#125;;
+
+//linux-5.15.114\include\linux\platform_device.h
+struct platform_driver &#123;
+    int (*probe)(struct platform_device *);
+    int (*remove)(struct platform_device *);
+    void (*remove_new)(struct platform_device *);
+    void (*shutdown)(struct platform_device *);
+    int (*suspend)(struct platform_device *, pm_message_t state);
+    int (*resume)(struct platform_device *);
+    struct device_driver driver;
+    const struct platform_device_id *id_table;
+    bool prevent_deferred_probe;
+&#125;;
+
+//linux-5.15.114\drivers\amlogic\wifi\wifi_dt.c
+int __init wifi_dt_init(void)
+&#123;
+    int ret;
+
+    ret = platform_driver_register(&amp;wifi_plat_driver); //include\linux\platform_device.h
+    return ret;
+&#125;
+</code></pre>
+<h2 id="platform-driver-register"><a href="#platform-driver-register" class="headerlink" title="platform_driver_register"></a>platform_driver_register</h2><pre><code class="c">//linux-5.15.114\include\linux\platform_device.h
+#define platform_driver_register(drv) \
+    __platform_driver_register(drv, THIS_MODULE)
+
+//linux-5.15.114\drivers\base\platform.c
+struct bus_type platform_bus_type = &#123;
+    .name		= &quot;platform&quot;,
+    .dev_groups	= platform_dev_groups,
+    .match		= platform_match,
+    .uevent		= platform_uevent,
+    .probe		= platform_probe,
+    .remove		= platform_remove,
+    .shutdown	= platform_shutdown,
+    .dma_configure	= platform_dma_configure,
+    .pm		= &amp;platform_dev_pm_ops,
+&#125;;
+
+//linux-5.15.114\drivers\base\platform.c
+int __platform_driver_register(struct platform_driver *drv,
+                struct module *owner)
+&#123;
+    drv-&gt;driver.owner = owner;
+    drv-&gt;driver.bus = &amp;platform_bus_type;
+
+    return driver_register(&amp;drv-&gt;driver);
+&#125;
+
+//linux-5.15.114\drivers\base\driver.c
+int driver_register(struct device_driver *drv)
+&#123;
+    int ret;
+    struct device_driver *other;
+    
+    other = driver_find(drv-&gt;name, drv-&gt;bus);
+    ret = bus_add_driver(drv);
+    ret = driver_add_groups(drv, drv-&gt;groups);
+    kobject_uevent(&amp;drv-&gt;p-&gt;kobj, KOBJ_ADD);
+    return ret;
+&#125;
+
+//linux-5.15.114\drivers\base\bus.c
+int bus_add_driver(struct device_driver *drv)
+&#123;
+    struct bus_type *bus;
+    struct driver_private *priv;
+    
+    bus = bus_get(drv-&gt;bus);
+    priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+    priv-&gt;driver = drv;
+    drv-&gt;p = priv;
+    if (drv-&gt;bus-&gt;p-&gt;drivers_autoprobe) &#123;
+        error = driver_attach(drv); //drivers\base\dd.c
+    &#125;
+    return 0;
+&#125;
+
+//linux-5.15.114\drivers\base\dd.c
+int driver_attach(struct device_driver *drv)
+&#123;
+    return bus_for_each_dev(drv-&gt;bus, NULL, drv, __driver_attach);
+&#125;
+
+//linux-5.15.114\drivers\base\bus.c
+int bus_for_each_dev(struct bus_type *bus, struct device *start,
+             void *data, int (*fn)(struct device *, void *))
+&#123;
+    struct klist_iter i;
+    struct device *dev;
+    int error = 0;
+
+    klist_iter_init_node(&amp;bus-&gt;p-&gt;klist_devices, &amp;i,
+                 (start ? &amp;start-&gt;p-&gt;knode_bus : NULL));
+    while (!error &amp;&amp; (dev = next_device(&amp;i)))
+        error = fn(dev, data);
+    klist_iter_exit(&amp;i);
+    return error;
+&#125;
+
+//linux-5.15.114\drivers\base\driver.c
+static struct device *next_device(struct klist_iter *i)
+&#123;
+    struct klist_node *n = klist_next(i);
+    struct device *dev = NULL;
+    struct device_private *dev_prv;
+
+    if (n) &#123;
+        dev_prv = to_device_private_driver(n);
+        dev = dev_prv-&gt;device;
+    &#125;
+    return dev;
+&#125;
+
+//linux-5.15.114\drivers\base\dd.c
+static int __driver_attach(struct device *dev, void *data)
+&#123;
+    struct device_driver *drv = data;
+    
+    __device_driver_lock(dev, dev-&gt;parent);
+    driver_probe_device(drv, dev);
+    __device_driver_unlock(dev, dev-&gt;parent);
+
+    return 0;
+&#125;
+
+//linux-5.15.114\drivers\base\dd.c
+static int driver_probe_device(struct device_driver *drv, struct device *dev)
+&#123;
+    int ret;
+    
+    ret = __driver_probe_device(drv, dev);
+    return ret;
+&#125;
+
+//linux-5.15.114\drivers\base\dd.c
+static int __driver_probe_device(struct device_driver *drv, struct device *dev)
+&#123;
+    int ret = 0;
+    
+    ret = really_probe(dev, drv);
+    return ret;
+&#125;
+
+//linux-5.15.114\drivers\base\dd.c
+static int really_probe(struct device *dev, struct device_driver *drv)
+&#123;
+    int ret;
+    
+    ret = call_driver_probe(dev, drv);
+    return ret;
+&#125;
+
+//linux-5.15.114\drivers\base\dd.c
+static int call_driver_probe(struct device *dev, struct device_driver *drv)
+&#123;
+    int ret = 0;
+    
+    if (dev-&gt;bus-&gt;probe)
+        ret = dev-&gt;bus-&gt;probe(dev);
+    else if (drv-&gt;probe)
+        ret = drv-&gt;probe(dev);
+    return ret;
+&#125;
+</code></pre>
+<h2 id="wifi-dev-probe"><a href="#wifi-dev-probe" class="headerlink" title="wifi_dev_probe"></a>wifi_dev_probe</h2><p>驱动的探测函数，该函数主要对dts文件的内容进行解析，提取相关参数</p>
+<p>（1）解析设备树文件，获取参数，得到wifi的plat数据结构信息<br>（2）配置双通道pwm参数<br>（3）初始化wlan内存<br>（4）分配字符设备wifi_power_devno<br>（5）分配字符设备wifi_mac_devno</p>
+<pre><code class="c">//linux-5.15.114\drivers\amlogic\wifi\wifi_dt.c
+static struct cdev *wifi_power_cdev;
+static int wifi_dev_probe(struct platform_device *pdev)
+&#123;
+    int ret;
+    struct wifi_plat_info *plat;
+    const char *value;
+    int buf_level = 0;
+    
+    plat = wifi_get_driver_data(pdev); //获取驱动数据
+    
+    ret = of_property_read_string(pdev-&gt;dev.of_node,
+                          &quot;interrupt-gpios&quot;, &amp;value);
+    ret = of_property_read_string(pdev-&gt;dev.of_node,
+                              &quot;irq_trigger_type&quot;,
+                              &amp;value);
+    if (strcmp(value, &quot;IRQF_TRIGGER_LOW&quot;) == 0) &#123;
+        plat-&gt;irq_trigger_type = IRQF_TRIGGER_LOW;
+        
+    ret = of_property_read_string(pdev-&gt;dev.of_node,
+                          &quot;power_on-gpios&quot;, &amp;value);
+        
+    //配置pwm参数
+    ret = pwm_double_channel_conf_dt(plat);
+    
+    //初始化wlan内存
+    of_property_read_u32(pdev-&gt;dev.of_node, &quot;wifi_static_buf&quot;, &amp;buf_level)；
+    bcmdhd_init_wlan_mem(buf_level);
+    
+    //分配字符设备wifi_power_devno
+    ret = alloc_chrdev_region(&amp;wifi_power_devno,
+                  0, 1, WIFI_POWER_DRIVER_NAME);
+    ret = class_register(&amp;wifi_power_class);
+    wifi_power_cdev = cdev_alloc();
+    cdev_init(wifi_power_cdev, &amp;wifi_power_fops);
+    ret = cdev_add(wifi_power_cdev, wifi_power_devno, 1);
+    devp = device_create(&amp;wifi_power_class, NULL,
+                 wifi_power_devno, NULL, WIFI_POWER_DEVICE_NAME);
+    
+    //设置设备树
+    wifi_setup_dt();
+    
+    //分配字符设备wifi_power_devno
+    ret = alloc_chrdev_region(&amp;wifi_mac_devno, 0, 1, WIFI_MAC_DEVICE_NAME);
+    wifi_mac_cdev = cdev_alloc();
+    cdev_init(wifi_mac_cdev, &amp;wifi_mac_fops);
+    ret = cdev_add(wifi_mac_cdev, wifi_mac_devno, 1);
+    wifi_mac_devp = device_create(wifi_dt_class, NULL,
+                    wifi_mac_devno, NULL, WIFI_MAC_DEVICE_NAME);
+&#125;
+
+//linux-5.15.114\drivers\amlogic\wifi\wifi_dt.c
+static int wifi_setup_dt(void)
+&#123;
+    int ret;
+    
+    if (wifi_info.interrupt_pin) &#123;
+        ret = gpio_request(wifi_info.interrupt_pin,
+                   OWNER_NAME);
+    &#125;
+    if (wifi_info.power_on_pin) &#123;
+        ret = gpio_request(wifi_info.power_on_pin, OWNER_NAME);
+    &#125;
+    return 0;
+&#125;
+
+//linux-5.15.114\drivers\amlogic\wifi\wifi_dt.c
+int pwm_double_channel_conf_dt(struct wifi_plat_info *plat)
+&#123;
+    int ret;
+    struct device_node *wifinode = plat-&gt;dev-&gt;of_node;
+    
+    ret = of_property_read_u32(wifinode, &quot;pwm_config&quot;, &amp;pwm_phandle);
+    pnode = of_find_node_by_phandle(pwm_phandle);
+    
+    for_each_child_of_node(pnode, child) &#123;
+        ret = of_property_read_u32(child, &quot;duty-cycle&quot;, &amp;pdata-&gt;duty_cycle);
+        ret = of_property_read_u32(child, &quot;times&quot;, &amp;pdata-&gt;pwm_times);
+    &#125;
+    
+    return 0;
+&#125;
+</code></pre>
+<h2 id="wifi-get-driver-data"><a href="#wifi-get-driver-data" class="headerlink" title="wifi_get_driver_data"></a>wifi_get_driver_data</h2><p>获取wifi驱动数据的函数</p>
+<p>使用of_match_node函数匹配wifi驱动所在的设备节点，再返回驱动对应的数据</p>
+<pre><code class="c">//linux-5.15.114\drivers\amlogic\wifi\wifi_dt.c
+static struct wifi_plat_info *wifi_get_driver_data(struct platform_device *pdev)
+&#123;
+    const struct of_device_id *match;
+
+    match = of_match_node(wifi_match, pdev-&gt;dev.of_node); //drivers\of\base.c
+    if (!match)
+        return NULL;
+    return (struct wifi_plat_info *)match-&gt;data;
+&#125;
+
+//linux-5.15.114\drivers\amlogic\wifi\wifi_dt.c
+static const struct of_device_id wifi_match[] = &#123;
+    &#123;
+        .compatible = &quot;amlogic, aml-wifi&quot;,
+        .data		= (void *)&amp;wifi_info
+    &#125;,
+    &#123;&#125;,
+&#125;;
+
+//linux-5.15.114\drivers\amlogic\wifi\wifi_dt.c
+static struct wifi_plat_info wifi_info;
+struct wifi_plat_info &#123;
+    int interrupt_pin;
+    int irq_num;
+    int irq_trigger_type;
+
+    int power_on_pin;
+    int power_on_pin_level;
+    int power_on_pin_OD;
+    int power_on_pin2;
+    int chip_en_pin;
+    int power_init_off;
+
+    int clock_32k_pin;
+    struct gpio_desc *interrupt_desc;
+    struct gpio_desc *powe_desc;
+
+    int plat_info_valid;
+    struct pinctrl *p;
+    struct device		*dev;
+#ifdef CONFIG_AMLOGIC_PWM_32K
+    struct pwm_double_datas ddata;
+    struct pwm_single_data sdata;
+#endif
+&#125;;
+
+//linux-5.15.114\drivers\of\base.c
+const struct of_device_id *of_match_node(const struct of_device_id *matches,
+                     const struct device_node *node)
+&#123;
+    const struct of_device_id *match;
+    unsigned long flags;
+
+    raw_spin_lock_irqsave(&amp;devtree_lock, flags);
+    match = __of_match_node(matches, node);
+    raw_spin_unlock_irqrestore(&amp;devtree_lock, flags);
+    return match;
+&#125;
+
+//linux-5.15.114\drivers\of\base.c
+static
+const struct of_device_id *__of_match_node(const struct of_device_id *matches,
+                       const struct device_node *node)
+&#123;
+    const struct of_device_id *best_match = NULL;
+    int score, best_score = 0;
+
+    for (; matches-&gt;name[0] || matches-&gt;type[0] || matches-&gt;compatible[0]; matches++) &#123;
+        score = __of_device_is_compatible(node, matches-&gt;compatible,
+                          matches-&gt;type, matches-&gt;name);
+        if (score &gt; best_score) &#123;
+            best_match = matches;
+            best_score = score;
+        &#125;
+    &#125;
+
+    return best_match;
+&#125;
+</code></pre>
+<h1 id="wireless驱动文件"><a href="#wireless驱动文件" class="headerlink" title="wireless驱动文件"></a>wireless驱动文件</h1><h2 id="aml-drv（52-1-）"><a href="#aml-drv（52-1-）" class="headerlink" title="aml_drv（52.1%）"></a>aml_drv（52.1%）</h2><pre><code class="c">wc *.&#123;c,h&#125; | sort -n
+    6      45     624 aml_version_gen.h （生成的版本信息）
+    14      20     296 aml_version.h （打印版本信息）
+    14      33     341 aml_sap.h （在scc模式下获取ie地址信息等函数的声明）
+    20      34     472 aml_dini.h （aml platform初始化的函数声明）
+    24      60     660 aml_irqs.h （aml platform注册的中断处理函数声明）
+    24      73     870 aml_rps.h （aml 接收数据包分流函数声明，与多处理器有关）
+    25      52     873 ipc_compat.h （进程间通信使用的一些宏定义）
+    25      62     698 aml_msg_rx.h （接收函数声明）
+    27      57     641 aml_regdom.h （区域规则的函数和结构体声明）
+    31      64     828 aml_strs.h （用于字符串调试宏定义）
+    36      70     772 aml_task.h （aml 任务机制函数的api）
+    43     128    1702 aml_scc.h （Station Configuration Control，站点配置控制的函数声明）
+    45     121    1126 wifi_debug.h （一些用于调试的宏定义）
+    *49     123    1159 aml_sap.c （在scc模式下获取ie地址信息等函数的实现）
+    51      99    1120 aml_wq.h （工作队列机制的api）
+    55     108    1128 aml_android.h （android平台相关结构体）
+    57     123    1492 aml_cfg.h （配置信息的路径、宏定义、数据结构）
+    58     126    1646 aml_prealloc.h （预分配内存的函数声明）
+    59     207    2208 aml_p2p.h （p2p相关的定义和函数声明）
+    62     138    1380 lmac_types.h (定义类型别名)
+    64     185    1976 aml_testmode.h （测试模式函数声明）
+    82     206    2002 aml_tcp_ack.h （tcp ack的宏定义、数据结构和函数声明）
+    87     200    1947 aml_mod_params.h （模块参数和设置参数的函数声明）
+    100     339    3254 aml_bfmer.h（24，1058，1.2%）（波束成形报告相关函数声明，【CONFIG_AML_BFMER】）
+    ----------------------------------
+    *105     278    2694 aml_bfmer.c （波束成形报告相关函数定义）
+    113     277    3070 aml_cmds.h （aml的命令管理宏定义、结构体、函数声明）
+    113     288    3158 aml_recy.h （恢复机制的宏定义、结构体、函数声明）
+    121     338    3542 aml_iwpriv_cmds.h （iw的命令数据结构）
+    133     314    3943 aml_prof.h （一些宏定义）
+    *144     378    4037 aml_android.c （android平台相关api实现）
+    *151     284    3938 aml_wq.c （工作队列work queue的api实现）
+    *154     359    5143 aml_prealloc.c （预分配内存的api实现）
+    160     479    4982 ,aml_radar.h （雷达检测的声明,【CONFIG_AML_RADAR】）
+    *165     394    4669 aml_task.c (aml task 函数api实现)
+    *170     543    5050 aml_regdom.c （区域规则的函数实现）
+    177     714    5862 aml_fw_trace.h （固件跟踪的数据结构定义和函数声明）
+    179     621    5354 aml_mu_group.h （多组sta的管理的数据结构定义和函数声明）
+    *186     447    5442 aml_irqs.c （中断的处理函数定义）
+    *187     632    6380 hal_desc.c（39，1058+2258=3316，3.75%）（硬件抽象的描述信息）
+    ----------------------------------
+    226     684    6770 aml_testmode.c （测试模式的一些函数定义，【CONFIG_NL80211_TESTMODE】）
+    *244    1219   14320 aml_msg_tx.h （发送消息的函数声明）
+    *249     696    9240 reg_access.h （mac hw和platform的一些宏定义）
+    253     723   13440 aml_strs.c （msg对应的字符信息，指针数组保存）
+    280     727    7699 aml_rps.c （接收包分流的api函数实现）
+    292     791    8716 aml_dini.c （dini platform的函数实现）
+    *298     737    8240 reg_ipc_app.h （ipc模块注册的声明）
+    319    1192   11040 aml_p2p.c （p2p相关函数的实现）
+    *320    1180   10131 aml_utils.h （一些数据结构和工具函数的声明）
+    *326    1086   12050 aml_debugfs.h （文件系统调试相关的数据结构和函数声明）
+    *355     994   11283 aml_platform.h （platform处理相关数据结构和函数声明）
+    *424    1690   15214 ipc_host.h （ipc相关数据结构和函数声明）
+    *488    1515   11912 lmac_mac.h（52，3316+4074=7390，8.4%）（mac相关的宏定义和数据结构）
+    ----------------------------------
+    501    1204   14680 aml_cmds.c （处理排队的命令相关函数定义）
+    *521     532    8326 aml_agcram.h （agc自动增益参数）
+    *527    2688   20176 aml_txq.h （aml_txq结构体和相关函数声明）
+    544    1477   17181 aml_tcp_ack.c （tcp ack会话相关函数的定义）
+    574    1296   18355 aml_fw_dump.c （调试文件系统时进入固件转存处理的相关函数定义, 【CONFIG_DEBUG_FS】）
+    601    2008   19075 aml_cfg.c （操作配置文件的相关函数定义）
+    *649    1847   22582 aml_compat.h （关于兼容性的一些宏定义）
+    659    2428   20191 aml_mu_group.c （多组sta操作的函数定义，【CONFIG_AML_MUMIMO_TX】）
+    755    1905   22756 aml_recy.c （恢复机制的实现）
+    *768    2668   22790 hal_desc.h （硬件描述信息的宏定义和数据结构）
+    *793    2985   24228 ipc_shared.h （用于进程间通信的共享的数据结构，宏定义）
+    821    2604   29659 aml_scc.c（64，7390+7713=15103，17%）（单通道发送接收共存模式的数据结构和函数定义）
+    ----------------------------------
+    1122    3241   35962 ipc_host.c （ipc处理函数的定义）
+    1127    3643   33708 aml_fw_trace.c （fw跟踪调试的相关函数定义, 【CONFIG_DEBUG_FS】）
+    1218    3880   46290 aml_mod_params.c (根据模块参数进行配置的相关函数定义)
+    *1493    3780   50811 aml_events.h （跟踪事件的函数定义）
+    1637    5572   51868 aml_radar.c （雷达检测相关数据结构和函数定义）
+    1929    6279   55997 aml_txq.c（70，15103+8526=23629，26.7%）（txq传输队列操作的相关函数实现）
+    ----------------------------------
+    2123    5591   73036 aml_msg_rx.c （处理接收消息的相关函数实现）
+    2295    7284   77955 aml_utils.c （一些处理进程间通信的工具函数的实现）
+    2583    8011   84367 aml_debugfs.c （调试文件系统的函数实现, 【CONFIG_DEBUG_FS】）
+    2817    8248   87705 【aml_platform.c】 （platform接口处理的相关函数实现）
+    *3303   11237   89719 lmac_msg.h （mac 消息相关的宏定义、数据结构）
+    4237   13007  146006 aml_msg_tx.c（76，23629+17359=40988，46.4%）（消息发送函数的实现）
+    ----------------------------------
+    5057   17253  186578 aml_iwpriv_cmds.c（77，10988+5057=46044，52%）（处理iw私有命令的相关函数实现）
+    46044  142921 1496535 total
+
+源文件之外的文件（7个）
+find ./ -type f ! -name &#39;*.c&#39; ! -name &#39;*.h&#39;
+./Makefile_pcie_pc
+./Makefile_PC
+./mklink.sh
+./fullmac/Makefile
+./mkvers.sh
+./compile_test.sh
+./Makefile
+
+    
+单独的源文件（16个）
+    aml_agcram.h
+    aml_compat.h
+    aml_events.h
+    aml_fw_dump.c
+    aml_prof.h
+    aml_version_gen.h
+    aml_version.h
+    compile_test.sh
+    ipc_compat.h
+    ipc_shared.h
+    lmac_mac.h
+    lmac_msg.h
+    lmac_types.h
+    reg_access.h
+    reg_ipc_app.h
+    wifi_debug.h
+
+配对的源文件（61个）
+find . -type f -regex &#39;\./[^.]*\.\(c\|h\)&#39; -exec bash -c &#39;file=&quot;&#123;&#125;&quot;; base=&quot;$&#123;file%.*&#125;&quot;; [ -e &quot;$base&quot;.c -a -e &quot;$base&quot;.h ] &amp;&amp; echo &quot;$base.c $base.h&quot;&#39; \;
+
+./aml_msg_tx.c ./aml_msg_tx.h
+./aml_scc.c ./aml_scc.h
+./aml_mu_group.c ./aml_mu_group.h
+./aml_task.c ./aml_task.h
+./aml_mod_params.c ./aml_mod_params.h
+./aml_testmode.c ./aml_testmode.h
+./aml_dini.c ./aml_dini.h
+./aml_wq.c ./aml_wq.h
+./aml_platform.c ./aml_platform.h
+./hal_desc.c ./hal_desc.h
+./aml_radar.c ./aml_radar.h
+./aml_cfg.c ./aml_cfg.h
+./aml_android.c ./aml_android.h
+./aml_msg_tx.c ./aml_msg_tx.h
+./aml_mu_group.c ./aml_mu_group.h
+./aml_irqs.c ./aml_irqs.h
+./aml_msg_rx.c ./aml_msg_rx.h
+./aml_wq.c ./aml_wq.h
+./aml_p2p.c ./aml_p2p.h
+./aml_rps.c ./aml_rps.h
+./aml_irqs.c ./aml_irqs.h
+./aml_sap.c ./aml_sap.h
+./aml_android.c ./aml_android.h
+./aml_debugfs.c ./aml_debugfs.h
+./aml_p2p.c ./aml_p2p.h
+./aml_fw_trace.c ./aml_fw_trace.h
+./aml_task.c ./aml_task.h
+./aml_iwpriv_cmds.c ./aml_iwpriv_cmds.h
+./ipc_host.c ./ipc_host.h
+./aml_utils.c ./aml_utils.h
+./aml_strs.c ./aml_strs.h
+./aml_cmds.c ./aml_cmds.h
+./aml_testmode.c ./aml_testmode.h
+./aml_regdom.c ./aml_regdom.h
+./aml_bfmer.c ./aml_bfmer.h
+./aml_sap.c ./aml_sap.h
+./aml_cfg.c ./aml_cfg.h
+./aml_bfmer.c ./aml_bfmer.h
+./aml_prealloc.c ./aml_prealloc.h
+./aml_radar.c ./aml_radar.h
+./aml_tcp_ack.c ./aml_tcp_ack.h
+./aml_cmds.c ./aml_cmds.h
+./aml_iwpriv_cmds.c ./aml_iwpriv_cmds.h
+./aml_recy.c ./aml_recy.h
+./aml_tcp_ack.c ./aml_tcp_ack.h
+./hal_desc.c ./hal_desc.h
+./aml_platform.c ./aml_platform.h
+./aml_dini.c ./aml_dini.h
+./aml_regdom.c ./aml_regdom.h
+./aml_recy.c ./aml_recy.h
+./aml_utils.c ./aml_utils.h
+./aml_msg_rx.c ./aml_msg_rx.h
+./aml_debugfs.c ./aml_debugfs.h
+./aml_prealloc.c ./aml_prealloc.h
+./aml_txq.c ./aml_txq.h
+./ipc_host.c ./ipc_host.h
+./aml_strs.c ./aml_strs.h
+./aml_rps.c ./aml_rps.h
+./aml_scc.c ./aml_scc.h
+./aml_txq.c ./aml_txq.h
+./aml_fw_trace.c ./aml_fw_trace.h
+</code></pre>
+<h2 id="aml-drv-fullmac（15-9-）"><a href="#aml-drv-fullmac（15-9-）" class="headerlink" title="aml_drv&#x2F;fullmac（15.9%）"></a>aml_drv&#x2F;fullmac（15.9%）</h2><pre><code class="c">wc *.&#123;c,h&#125; | sort -n
+    33    105   1216 aml_main.h （main相关函数声明）
+    *42     87   1128 aml_mesh.c （获取mesh优先级信息的函数，只有一个函数）
+    45     72   1176 aml_mesh.h （mesh函数声明）
+    54    122   1348 aml_tdls.h（4，174，0.2%） （tdls的数据结构声明和发送tdls数据包的函数声明）
+    ----------------------------------
+   283    882   7880 aml_rx.h （接收数据的宏定义、数据结构和函数声明）
+   314   1134  10268 aml_tx.h （发送数据的宏定义、数据结构和函数声明）
+   *773   2240  24207 aml_tdls.c（7，174+1370=1544，1.7%）（tdls相关函数的实现）
+    ----------------------------------
+  1006   3655  29253 aml_defs.h （aml_vif、aml_sta、aml_hw等关键的数据结构和宏定义）
+  *2275   8017  81696 aml_tx.c （发送数据的相关函数实现）
+  *2896   9562 109292 aml_rx.c（10，1544+6177=7721，8.7%） （接收数据的相关函数实现）
+    ----------------------------------
+  *6348  18473 213561 aml_main.c（11，7721+6348=14069，16%）（驱动主程序）
+ 14069  44349 481025 total
+ 
+ find ./ -type f ! -name &#39;*.c&#39; ! -name &#39;*.h&#39;
+./Makefile
+
+编译为w2.ko
+obj-m := w2.o
+w2-y := aml_rx.o            \
+        aml_tx.o            \
+        aml_main.o          \
+        aml_mesh.o          \
+        aml_tdls.o          \
+        ../aml_msg_tx.o        \
+        ../aml_msg_rx.o        \
+        ../aml_utils.o         \
+        ../aml_cmds.o          \
+        ../aml_irqs.o          \
+        ../aml_cfg.o           \
+        ../aml_strs.o          \
+        ../aml_txq.o           \
+        ../aml_mod_params.o    \
+        ../aml_platform.o      \
+        ../aml_dini.o          \
+        ../ipc_host.o          \
+        ../hal_desc.o          \
+        ../aml_prealloc.o      \
+        ../aml_regdom.o        \
+        ../aml_android.o       \
+        ../aml_iwpriv_cmds.o   \
+        ../aml_p2p.o           \
+        ../aml_scc.o           \
+        ../aml_wq.o            \
+        ../aml_recy.o          \
+        ../aml_tcp_ack.o       \
+        ../aml_task.o          \
+        ../aml_rps.o           \
+        ../aml_sap.o
+w2-$(CONFIG_AML_RADAR)       += ../aml_radar.o
+w2-$(CONFIG_DEBUG_FS)         += ../aml_debugfs.o
+w2-$(CONFIG_DEBUG_FS)         += ../aml_fw_dump.o
+w2-$(CONFIG_DEBUG_FS)         += ../aml_fw_trace.o
+w2-$(CONFIG_NL80211_TESTMODE) += ../aml_testmode.o
+w2-$(CONFIG_AML_BFMER)       += ../aml_bfmer.o
+w2-$(CONFIG_AML_MUMIMO_TX)   += ../aml_mu_group.o
+</code></pre>
+<h3 id="aml-mod-init"><a href="#aml-mod-init" class="headerlink" title="aml_mod_init"></a>aml_mod_init</h3><pre><code class="c">加载w2.ko后的程序执行路径
+注册pcie驱动
+初始化cfg80211（无线设备wiphy）
+设置驱动数据
+//aml_drv\fullmac\aml_main.c
+module_init(aml_mod_init);
+unsigned int aml_bus_type;
+static int __init aml_mod_init(void)
+&#123;
+    if (aml_bus_type == PCIE_MODE) &#123;
+        return aml_platform_register_pcie_drv();
+    &#125;
+&#125;
+//aml_drv\aml_platform.c
+int aml_platform_register_pcie_drv(void)
+&#123;
+    int ret = 0;
+    struct aml_plat *aml_plat = NULL;
+    void *drv_data = NULL;
+    
+    aml_plat = kzalloc(sizeof(struct aml_plat) + sizeof(struct aml_pci), GFP_KERNEL);
+    aml_plat-&gt;enable = aml_pci_platform_enable;  //函数指针赋值
+    aml_plat-&gt;disable = aml_pci_platform_disable; 
+    aml_plat-&gt;get_address = aml_pci_get_address; 
+    aml_plat-&gt;ack_irq = aml_pci_ack_irq; 
+    aml_plat-&gt;get_config_reg = aml_pci_get_config_reg;
+
+    g_pci_dev = aml_plat-&gt;pci_dev;
+    ret = aml_platform_init(aml_plat, &amp;drv_data);
+    pci_set_drvdata(g_pci_dev, drv_data);
+    
+    return ret;
+&#125;
+
+//aml_drv\aml_platform.c
+int aml_platform_init(struct aml_plat *aml_plat, void **platform_data)
+&#123;
+    aml_plat-&gt;enabled = false;
+    return aml_cfg80211_init(aml_plat, platform_data);
+&#125;
+
+//linux-5.15.114\include\linux\pci.h
+static inline void pci_set_drvdata(struct pci_dev *pdev, void *data)
+&#123;
+    dev_set_drvdata(&amp;pdev-&gt;dev, data);
+&#125;
+</code></pre>
+<h3 id="aml-cfg80211-init"><a href="#aml-cfg80211-init" class="headerlink" title="aml_cfg80211_init"></a>aml_cfg80211_init</h3><pre><code class="c">//aml_drv\fullmac\aml_main.c
+int aml_cfg80211_init(struct aml_plat *aml_plat, void **platform_data)
+&#123;
+    struct aml_hw *aml_hw = NULL;
+    struct wiphy *wiphy;
+    char alpha2[3] = &#123;&#39;0&#39;, &#39;0&#39;, &#39;\0&#39;&#125;;
+    int ret = 0;
+    
+    wiphy = wiphy_new(&amp;aml_cfg80211_ops, sizeof(struct aml_hw)); //include\net\cfg80211.h
+    aml_hw = wiphy_priv(wiphy);  //include\net\cfg80211.h
+    aml_hw-&gt;wiphy = wiphy;
+    aml_hw-&gt;plat = aml_plat;
+    
+    aml_hw-&gt;dev = aml_platform_get_dev(aml_plat);
+    set_wiphy_dev(wiphy, aml_hw-&gt;dev); //include\net\cfg80211.h
+    aml_hwctx_buf_init(aml_hw) //init context buffers
+        
+    aml_hw-&gt;sw_txhdr_cache = KMEM_CACHE(aml_sw_txhdr, 0);
+    aml_hwq_init(aml_hw);
+    aml_txq_prepare(aml_hw);
+    aml_mu_group_init(aml_hw);
+    
+    aml_wiphy_set_max_sched_scans(wiphy, 1);
+    aml_cfg80211_add_connected_pno_support(wiphy);
+    aml_apply_regdom(aml_hw, wiphy, alpha2);
+    ret = aml_platform_on(aml_hw, NULL)；    
+    
+    aml_radar_detection_init(&amp;aml_hw-&gt;radar);
+    aml_send_me_config_req(aml_hw);
+    aml_send_extcapab_req(aml_hw);
+    
+    ret = wiphy_register(wiphy); //注册一个无线设备，net\wireless\core.c 
+    
+    INIT_WORK(&amp;aml_hw-&gt;defer_rx.work, aml_rx_deferred);
+    
+    ret = aml_cfg_parse(aml_hw, &amp;cfg);
+    ret = aml_wiphy_addresses_add(wiphy, cfg);
+        
+    rtnl_lock();
+    wdev = aml_interface_add(aml_hw, &quot;wlan%d&quot;, NET_NAME_UNKNOWN,
+               aml_mod_params.custchan ? NL80211_IFTYPE_MONITOR : NL80211_IFTYPE_STATION,
+               NULL); //添加wlan接口
+    rtnl_unlock();
+    
+    ret = register_inetaddr_notifier(&amp;aml_ipv4_cb);  //注册ipv4地址变化的回调通知函数，net\ipv4\devinet.c
+    ret = register_inet6addr_notifier(&amp;aml_ipv6_cb);  //注册ipv6地址变化的回调通知函数，net\ipv6\addrconf_core.c
+    
+    rtnl_lock();
+    wdev = aml_interface_add(aml_hw, &quot;ap%d&quot;, NET_NAME_UNKNOWN,
+               NL80211_IFTYPE_STATION, NULL); //添加ap接口
+    rtnl_unlock();
+    
+    aml_set_temp_start(aml_hw); //开启温度中断
+    aml_interface_shutdown_init(aml_hw); //接口关闭的初始化
+    return 0;
+&#125;
+</code></pre>
+<h4 id="wiphy-new-nm"><a href="#wiphy-new-nm" class="headerlink" title="wiphy_new_nm"></a>wiphy_new_nm</h4><pre><code class="c">//linux-5.15.114\include\net\cfg80211.h
+static inline struct wiphy *wiphy_new(const struct cfg80211_ops *ops,
+                      int sizeof_priv)
+&#123;
+    return wiphy_new_nm(ops, sizeof_priv, NULL);
+&#125;
+
+//aml_drv\fullmac\aml_main.c
+static struct cfg80211_ops aml_cfg80211_ops = &#123;
+    .suspend = aml_cfg80211_suspend,
+    .resume = aml_cfg80211_resume,
+    .add_virtual_intf = aml_cfg80211_add_iface,
+    .del_virtual_intf = aml_cfg80211_del_iface,
+    .change_virtual_intf = aml_cfg80211_change_iface,
+    .scan = aml_cfg80211_scan,
+    .connect = aml_cfg80211_connect,
+    .disconnect = aml_cfg80211_disconnect,
+    .add_key = aml_cfg80211_add_key,
+    .get_key = aml_cfg80211_get_key,
+    .del_key = aml_cfg80211_del_key,
+    .set_default_key = aml_cfg80211_set_default_key,
+    .set_default_mgmt_key = aml_cfg80211_set_default_mgmt_key,
+    .add_station = aml_cfg80211_add_station,
+    .del_station = aml_cfg80211_del_station,
+    .change_station = aml_cfg80211_change_station,
+    .mgmt_tx = aml_cfg80211_mgmt_tx,
+    //.mgmt_tx_cancel_wait = aml_cfg80211_mgmt_tx_cancel_wait,
+    .start_ap = aml_cfg80211_start_ap,
+    .change_beacon = aml_cfg80211_change_beacon,
+    .stop_ap = aml_cfg80211_stop_ap,
+    .set_monitor_channel = aml_cfg80211_set_monitor_channel,
+    .probe_client = aml_cfg80211_probe_client,
+    .set_wiphy_params = aml_cfg80211_set_wiphy_params,
+    .set_txq_params = aml_cfg80211_set_txq_params,
+    .set_tx_power = aml_cfg80211_set_tx_power,
+//    .get_tx_power = aml_cfg80211_get_tx_power,
+    .set_power_mgmt = aml_cfg80211_set_power_mgmt,
+    .get_station = aml_cfg80211_get_station,
+    .dump_station = aml_cfg80211_dump_station,
+    .remain_on_channel = aml_cfg80211_remain_on_channel,
+    .cancel_remain_on_channel = aml_cfg80211_cancel_remain_on_channel,
+    .dump_survey = aml_cfg80211_dump_survey,
+    .get_channel = aml_cfg80211_get_channel,
+    .start_radar_detection = aml_cfg80211_start_radar_detection,
+    .update_ft_ies = aml_cfg80211_update_ft_ies,
+    .set_cqm_rssi_config = aml_cfg80211_set_cqm_rssi_config,
+    .channel_switch = aml_cfg80211_channel_switch,
+    .tdls_channel_switch = aml_cfg80211_tdls_channel_switch,
+    .tdls_cancel_channel_switch = aml_cfg80211_tdls_cancel_channel_switch,
+    .tdls_mgmt = aml_cfg80211_tdls_mgmt,
+    .tdls_oper = aml_cfg80211_tdls_oper,
+    .change_bss = aml_cfg80211_change_bss,
+#if LINUX_VERSION_CODE &gt;= KERNEL_VERSION(4, 17, 0)
+    .external_auth = aml_cfg80211_external_auth,
+#endif
+    .set_rekey_data =  aml_cfg80211_set_rekey_data,
+    .sched_scan_start = aml_cfg80211_sched_scan_start,
+    .sched_scan_stop = aml_cfg80211_sched_scan_stop,
+&#125;
+</code></pre>
+<h4 id="wiphy-priv"><a href="#wiphy-priv" class="headerlink" title="wiphy_priv"></a>wiphy_priv</h4><pre><code class="c">//include\net\cfg80211.h
+static inline void *wiphy_priv(struct wiphy *wiphy)
+&#123;
+    BUG_ON(!wiphy);
+    return &amp;wiphy-&gt;priv;
+&#125;
+</code></pre>
+<h4 id="aml-platform-get-dev"><a href="#aml-platform-get-dev" class="headerlink" title="aml_platform_get_dev"></a>aml_platform_get_dev</h4><pre><code class="c">//aml_drv\aml_platform.h
+static inline struct device *aml_platform_get_dev(struct aml_plat *aml_plat)
+&#123;
+    return &amp;(aml_plat-&gt;pci_dev-&gt;dev);
+&#125;
+</code></pre>
+<h4 id="aml-interface-add"><a href="#aml-interface-add" class="headerlink" title="aml_interface_add"></a>aml_interface_add</h4><pre><code class="c">//aml_drv\fullmac\aml_main.c
+static struct wireless_dev *aml_interface_add(struct aml_hw *aml_hw,
+                                               const char *name,
+                                               unsigned char name_assign_type,
+                                               enum nl80211_iftype type,
+                                               struct vif_params *params)
+&#123;
+    struct net_device *ndev;
+    struct aml_vif *vif;
+    
+    ndev = alloc_netdev_mqs(sizeof(*vif), name, name_assign_type,
+                            aml_netdev_setup, NX_NB_NDEV_TXQ, 4); //(net\core\dev.c)
+    vif = netdev_priv(ndev); //(include\linux\netdevice.h)
+    ndev-&gt;ieee80211_ptr = &amp;vif-&gt;wdev;
+    vif-&gt;wdev.wiphy = aml_hw-&gt;wiphy;
+    vif-&gt;aml_hw = aml_hw;
+    vif-&gt;ndev = ndev;
+    SET_NETDEV_DEV(ndev, wiphy_dev(vif-&gt;wdev.wiphy));  //include\linux\netdevice.h
+    vif-&gt;wdev.netdev = ndev;
+    vif-&gt;wdev.iftype = type;
+    
+    switch (type) &#123;
+    case NL80211_IFTYPE_STATION:
+    case NL80211_IFTYPE_P2P_CLIENT:
+        break;
+    case NL80211_IFTYPE_MESH_POINT:
+    case NL80211_IFTYPE_AP:
+    case NL80211_IFTYPE_P2P_GO:
+        break;
+    case NL80211_IFTYPE_AP_VLAN:
+        break;
+    case NL80211_IFTYPE_MONITOR:
+        break;
+    &#125;
+    register_netdevice(ndev);  //(net\core\dev.c)
+    
+    list_add_tail(&amp;vif-&gt;list, &amp;aml_hw-&gt;vifs);
+    return &amp;vif-&gt;wdev;
+&#125;
+</code></pre>
+<h2 id="aml-drv-aml-bus（7-8-）"><a href="#aml-drv-aml-bus（7-8-）" class="headerlink" title="aml_drv&#x2F;aml_bus（7.8%）"></a>aml_drv&#x2F;aml_bus（7.8%）</h2><pre><code class="c">wc *.&#123;c,h&#125; | sort -n
+    19     31    424 aml_w2_pci.h （pci接口驱动的相关函数声明）
+    28     56    613 aml_interface.h （接口类型的相关数据结构）
+    38     98   1034 aml_static_buf.h （内存分配的数据结构和函数声明）
+    41    156   1766 wifi_w1_drv_reg_ops.h（不用）
+    42    186   1783 w2_usb.h （不使用）
+    64    176   1831 sg_common.h （hif层的宏定义和数据结构）
+    77    273   2967 w1_usb.h（不用）（7，309，0.35%） 
+    ----------------------------------
+   113    379   4352 w1_sdio.h（不用）
+   120    274   2936 usb_common.h （不使用）
+   121    432   4462 w2_sdio.h （不使用）
+   *134    280   3918 aml_static_buf.c （静态内存分配及初始化、释放等相关函数）
+   138    330   3651 sdio_common.h （不使用）
+   *146    347   4124 aml_interface.c （接口相关函数，usb、sdio、pcie）
+   179    484   5535 aml_w2_v7.h（14，309+951=1260，1.42%）（v7平台的相关数据结构）
+    ----------------------------------
+   *230    506   5926 usb_common.c （不使用）
+   *320    915   9376 w1_usb.c（不用）
+   *332    859  10335 aml_w2_pci.c （pcie驱动相关函数的实现）
+   *378   1128  13537 aml_w2_v7.c （支持v7平台的相关函数实现）
+   *450   1087  11764 sdio_common.c（不使用）（19，1260+1710=2970，3.4%）
+    ----------------------------------
+  *1234   3705  39438 w2_sdio.c （sdio）（不使用sdio）
+  *1262   3722  39523 w1_sdio.c（不用）
+  *1441   4351  44170 w2_usb.c （usb）（不使用usb）
+  6907  19775 213465 total（22，2970+3937=6907，7.8%）
+    
+编译为w2_comm.ko
+obj-m += w2_comm.o
+w2_comm-objs := \
+        ../aml_bus/aml_interface.o \
+        ../aml_bus/usb_common.o    \
+        ../aml_bus/sdio_common.o   \
+        ../aml_bus/aml_w2_pci.o    \
+        ../aml_bus/aml_w2_v7.o     \
+        ../aml_bus/w2_sdio.o       \
+        ../aml_bus/aml_static_buf.o \
+        ../aml_bus/w2_usb.o
+</code></pre>
+<h3 id="aml-bus-intf-insmod"><a href="#aml-bus-intf-insmod" class="headerlink" title="aml_bus_intf_insmod"></a>aml_bus_intf_insmod</h3><pre><code class="c">加载w2_comm.ko后的程序执行路径
+//aml_drv\aml_bus\aml_interface.c
+char *bus_type = &quot;pci&quot;;
+module_init(aml_bus_intf_insmod);
+//模块的初始化调用函数
+int aml_bus_intf_insmod(void)
+&#123;
+    aml_init_wlan_mem();  //初始化内存
+    if (strncmp(bus_type,&quot;pci&quot;,3) == 0) &#123;
+        aml_bus_type = PCIE_MODE;
+        ret = aml_pci_insmod(); //bus类型为pci时的调用函数
+    &#125;
+    return 0;
+&#125;
+
+//aml_drv\aml_bus\aml_w2_pci.c
+int aml_pci_insmod(void)
+&#123;
+    int err = 0;
+
+    err = pci_register_driver(&amp;aml_pci_drv); //注册驱动，include\linux\pci.h
+    g_pci_driver_insmoded = 1;
+    g_pci_shutdown = 0;
+    return err;
+&#125;
+
+//aml_drv\aml_bus\aml_w2_pci.c
+static struct pci_driver aml_pci_drv = &#123;
+    .name     = KBUILD_MODNAME,  //会自动替换成当前编译模块的名称
+    .id_table = aml_pci_ids,
+    .probe    = aml_pci_probe,
+    .remove   = aml_pci_remove,
+    .suspend  = aml_pci_suspend,
+    .resume   = aml_pci_resume,
+    .shutdown = aml_pci_shutdown,
+&#125;;
+</code></pre>
+<h3 id="pci-register-driver"><a href="#pci-register-driver" class="headerlink" title="pci_register_driver"></a>pci_register_driver</h3><pre><code class="c">//linux-5.15.114\include\linux\pci.h
+#define pci_register_driver(driver)		\
+    __pci_register_driver(driver, THIS_MODULE, KBUILD_MODNAME)
+
+//linux-5.15.114\drivers\pci\pci-driver.c
+int __pci_register_driver(struct pci_driver *drv, struct module *owner,
+              const char *mod_name)
+&#123;
+    /* initialize common driver fields */
+    drv-&gt;driver.name = drv-&gt;name;
+    drv-&gt;driver.bus = &amp;pci_bus_type;
+    drv-&gt;driver.owner = owner;
+    drv-&gt;driver.mod_name = mod_name;
+    drv-&gt;driver.groups = drv-&gt;groups;
+    drv-&gt;driver.dev_groups = drv-&gt;dev_groups;
+
+    spin_lock_init(&amp;drv-&gt;dynids.lock);
+    INIT_LIST_HEAD(&amp;drv-&gt;dynids.list);
+
+    /* register with core */
+    return driver_register(&amp;drv-&gt;driver);
+&#125;
+
+//linux-5.15.114\drivers\pci\pci-driver.c
+struct bus_type pci_bus_type = &#123;
+    .name		= &quot;pci&quot;,
+    .match		= pci_bus_match,
+    .uevent		= pci_uevent,
+    .probe		= pci_device_probe,
+    .remove		= pci_device_remove,
+    .shutdown	= pci_device_shutdown,
+    .dev_groups	= pci_dev_groups,
+    .bus_groups	= pci_bus_groups,
+    .drv_groups	= pci_drv_groups,
+    .pm		= PCI_PM_OPS_PTR,
+    .num_vf		= pci_bus_num_vf,
+    .dma_configure	= pci_dma_configure,
+&#125;;
+</code></pre>
+<h3 id="aml-pci-probe"><a href="#aml-pci-probe" class="headerlink" title="aml_pci_probe"></a>aml_pci_probe</h3><pre><code class="c">//aml_drv\aml_bus\aml_w2_pci.c
+struct aml_plat_pci *g_aml_plat_pci;
+unsigned char g_pci_after_probe;
+static int aml_pci_probe(struct pci_dev *pci_dev,
+                          const struct pci_device_id *pci_id)
+&#123;
+    int ret = -ENODEV;
+
+    if (pci_id-&gt;vendor == W2p_VENDOR_AMLOGIC_EFUSE) &#123;
+        printk(&quot;%s:%d pcie vendor id %x\n&quot;, __func__, __LINE__, pci_id-&gt;vendor);
+        ret = aml_v7_platform_init(pci_dev, &amp;g_aml_plat_pci);
+    &#125;
+
+    g_aml_plat_pci-&gt;pci_dev = pci_dev;
+    g_pci_after_probe = 1;
+
+    return ret;
+&#125;
+
+//aml_drv\aml_bus\aml_w2_v7.c
+int aml_v7_platform_init(struct pci_dev *pci_dev, struct aml_plat_pci **aml_plat_pci)
+&#123;
+    struct aml_v7 *aml_v7;
+    int ret = -ENOMEM;
+    unsigned long bar2_base_addr;
+    unsigned long bar4_base_addr;
+    
+    aml_v7 = (struct aml_v7 *)(*aml_plat_pci)-&gt;priv;
+    ret = pci_enable_device(pci_dev);
+    
+    bar2_base_addr = pci_resource_start(pci_dev, 2);
+    bar4_base_addr = pci_resource_start(pci_dev, 4);
+    
+    aml_v7-&gt;pci_bar0_vaddr = (u8 *)pci_ioremap_bar(pci_dev, 0)
+        
+    pci_set_master(pci_dev);
+    
+    ret = pci_request_regions(pci_dev, KBUILD_MODNAME);
+    ret = pci_enable_msi(pci_dev);
+        
+    aml_v7-&gt;pci_bar2_vaddr = (u8 *)pci_ioremap_bar(pci_dev, 2);
+    aml_v7-&gt;pci_bar4_vaddr = (u8 *)pci_ioremap_bar(pci_dev, 4);
+    
+    return 0;
+&#125;
+</code></pre>
+<h2 id="common（24-）"><a href="#common（24-）" class="headerlink" title="common（24%）"></a>common（24%）</h2><pre><code class="c">wc *.&#123;c,h&#125; | sort -nwc: &#39;*.c&#39;: No such file or directory
+     9     16    174 wifi_ofdm_addr.h
+    10     18    201 wifi_adda_addr.h
+    11     25    274 wifi_sdio_if_addr.h
+    15     60    535 wifi_i2c_addr.h
+    16     46    501 wifi_phy_addr.h
+    21     33    467 wifi_sys_addr.h
+    21     34    391 wf_register.h
+    24     60    577 wifi_aon_addr.h
+    31    103   1078 wifi_coex_addr.h
+    31     78    937 fi_w1_sdio.h
+    34    125   1198 wifi_intf_addr.h
+    34     85   1231 wifi_top_addr.h
+    38    141   1177 wifi_sdio_cfg_addr.h
+    42     82    903 wifi_uart_addr.h
+    54    188   1564 fi_w2_sdio.h
+    74    204   2495 share_mem_map.h
+    ----------------------------------
+   107    330   3980 wifi_w2_shared_mem_cfg.h
+   108    244   2781 wifi_agc_addr.h
+   113    276   3183 wifi_mac_addr.h
+   120    627   5399 rf_d_xosc_reg.h
+   135    537   4752 chip_pmic_i2c_reg.h
+   136    632   5249 chip_efuse_reg.h
+    ----------------------------------
+   231   1019   8520 rf_d_adda_core_reg.h
+   313   1141  10096 wifi_mac_rx_reg.h
+   466   1806  15619 chip_pmu_reg.h
+   466   1806  15945 chip_bt_pmu_reg.h
+    ----------------------------------
+   565   2421  20642 wifi_mac_timer_reg.h
+   703   1748  17972 fi_cmd.h
+   726   3896  32872 rf_d_tx_reg.h
+   759   2972  25489 rf_d_adda_recv_reg.h
+   859   2707  23838 chip_intf_reg.h
+   996   5194  45846 rf_d_top_reg.h
+   999   5182  44210 chip_ana_reg.h
+    ----------------------------------
+  1066   3912  37049 fi_sdio.h
+  1085   4437  39575 wifi_mac_main_reg.h
+  1341   4459  42509 wifi_mac_tx_reg.h
+  1557   8225  72100 rf_d_sx_reg.h
+  1985   8142  70049 rf_d_adda_xmit_reg.h
+  2635  10207  89388 rf_d_adda_esti_reg.h
+  3418  17736 156787 rf_d_rx_reg.h
+ 21354  90954 807553 total
+ 
+ find . -type f ! -name &#39;*.c&#39; ! -name &#39;*.h&#39;
+./rwnx_settings.ini
+./wifi_w2_fw_pcie.bin
+./aml_wifi_rf.txt
+./wifi_w2_fw_sdio.bin
+./rwnx_karst.ini
+./wifi_w2_fw_usb.bin
+</code></pre>
+<h2 id="参考brcmfmac"><a href="#参考brcmfmac" class="headerlink" title="参考brcmfmac"></a>参考brcmfmac</h2><pre><code class="c">drivers/net/wireless/broadcom/brcm80211/brcmfmac目录为博通的full mac的实现
+drivers/net/wireless/broadcom/brcm80211/brcmsmac目录为博通的soft mac的实现
+</code></pre>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 jaytp@qq.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+    <div id="comments"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+<script type="text/javascript">
+    $.getScript('/js/gitalk.js', function () {
+        var gitalk = new Gitalk({
+            clientID: '08960ab58924fe2bf2c3',
+            clientSecret: '76f8d48d1bccd444b0f8c9fcaf8de12a212963aa',
+            repo: 'lishan666.github.io',
+            owner: 'lishan666',
+            admin: ['lishan666'],
+            id: decodeURI(location.pathname),
+            distractionFreeMode: 'true',
+            language: 'zh-CN',
+            perPage: parseInt('10',10)
+        })
+        gitalk.render('comments')
+    })
+</script>
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2016-2020 Yelog
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().trim().split('\n').length, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 18px 3px 15px 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: ;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>

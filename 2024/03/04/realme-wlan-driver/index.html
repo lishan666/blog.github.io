@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>realme-wlan-driver分析 | 乐观的lishan</title>
+  <meta name="keywords" content=" linux driver ">
+  <meta name="description" content="realme-wlan-driver分析 | 乐观的lishan">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta property="og:type" content="website">
+<meta property="og:title" content="about">
+<meta property="og:url" content="https://lishan666.github.io/about/index.html">
+<meta property="og:site_name" content="乐观的lishan">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-05T14:45:49.000Z">
+<meta property="article:modified_time" content="2024-03-06T14:21:45.003Z">
+<meta property="article:author" content="李珊">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/sublime.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.1.1"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>李珊</span>
+</div>
+
+<div class="icon">
+    
+        
+    
+        
+            <a title="github"
+               href="https://github.com/lishan666/"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="csdn"
+               href="https://blog.csdn.net/lishan132/"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-csdn"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:1624693146@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
+            
+                <small>(4)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="网站设计">
+            
+            网站设计
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="无线驱动">
+            
+            无线驱动
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="4">
+<input type="hidden" id="yelog_site_word_count" value="7.8k">
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>hexo</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>linux driver</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 "
+           href="/2024/03/06/chengdu-scenic-spot/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="chengdu scenic spot">chengdu scenic spot</span>
+            <span class="post-date" title="2024-03-06 22:25:44">2024/03/06</span>
+        </a>
+        
+        
+        <a  class="全部文章 网站设计 "
+           href="/2024/03/05/github-node-hexo-build-blog/"
+           data-tag="hexo"
+           data-author="" >
+            <span class="post-title" title="github+node+hexo搭建静态博客">github+node+hexo搭建静态博客</span>
+            <span class="post-date" title="2024-03-05 00:21:19">2024/03/05</span>
+        </a>
+        
+        
+        <a  class="全部文章 无线驱动 "
+           href="/2024/03/04/realme-wlan-driver/"
+           data-tag="linux driver"
+           data-author="" >
+            <span class="post-title" title="realme-wlan-driver分析">realme-wlan-driver分析</span>
+            <span class="post-date" title="2024-03-04 16:21:57">2024/03/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 无线驱动 "
+           href="/2024/02/21/amlogic%20w2/"
+           data-tag="linux driver"
+           data-author="" >
+            <span class="post-title" title="amlogic w2 驱动代码分析">amlogic w2 驱动代码分析</span>
+            <span class="post-date" title="2024-02-21 10:00:14">2024/02/21</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-realme-wlan-driver" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">realme-wlan-driver分析</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="无线驱动">无线驱动</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color3">linux driver</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2024-03-06 22:21:45'>2024-03-04 16:21</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        <span>字数:1.7k</span>
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+        <span class="top-comment" title="跳转至评论区">
+            <a href="#comments">
+                评论:<span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </a>
+        </span>
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#realme%E7%9A%84wifi%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">realme的wifi驱动代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#cfg80211%E5%AD%90%E7%B3%BB%E7%BB%9F"><span class="toc-text">cfg80211子系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#wext%E5%92%8Cnl80211"><span class="toc-text">wext和nl80211</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cfg80211%E5%92%8Cmac80211"><span class="toc-text">cfg80211和mac80211</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#softmac%E5%92%8Cfullmac"><span class="toc-text">softmac和fullmac</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#wifi%E9%A9%B1%E5%8A%A8%E7%9A%84%E6%9E%B6%E6%9E%84"><span class="toc-text">wifi驱动的架构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#realme%E7%9A%84%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84"><span class="toc-text">realme的代码结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E7%94%A8%E7%9A%84%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6"><span class="toc-text">引用的内核文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cfg80211-h"><span class="toc-text">cfg80211.h</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mac80211-h"><span class="toc-text">mac80211.h</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#common%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-text">common文件夹</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Makefile"><span class="toc-text">Makefile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cfg80211-c"><span class="toc-text">cfg80211.c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#report-c"><span class="toc-text">report.c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iface-c"><span class="toc-text">iface.c</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sc2332%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-text">sc2332文件夹</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Makefile-1"><span class="toc-text">Makefile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#init-c"><span class="toc-text">init.c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cmdevt-c"><span class="toc-text">cmdevt.c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sdio-c"><span class="toc-text">sdio.c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sipc-c"><span class="toc-text">sipc.c</span></a></li></ol></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="realme的wifi驱动代码分析"><a href="#realme的wifi驱动代码分析" class="headerlink" title="realme的wifi驱动代码分析"></a>realme的wifi驱动代码分析</h1><p>源码位置： <a target="_blank" rel="noopener" href="https://github.com/realme-kernel-opensource/realme_C33_C33-2023_C33-128GB-AndroidS-kernel-source/tree/a76a8d81db82bf3c338f49647c00d0cdfcb25cf5/drivers/unisoc_platform/wlan">https://github.com/realme-kernel-opensource/realme_C33_C33-2023_C33-128GB-AndroidS-kernel-source/tree/a76a8d81db82bf3c338f49647c00d0cdfcb25cf5/drivers/unisoc_platform/wlan</a></p>
+<h2 id="cfg80211子系统"><a href="#cfg80211子系统" class="headerlink" title="cfg80211子系统"></a>cfg80211子系统</h2><h3 id="wext和nl80211"><a href="#wext和nl80211" class="headerlink" title="wext和nl80211"></a>wext和nl80211</h3><p>在linux中，用户态程序与wifi驱动的交互主要有wext和nl80211两种，其中：</p>
+<ul>
+<li>wext主要使用ioctl与驱动交互，随着接口的逐渐增加，扩展性变差，现在基本不用这种方式</li>
+<li>nl80211主要使用netlink与驱动交互，现在是主流，wpa_supplicant就使用nl80211的方式</li>
+</ul>
+<h3 id="cfg80211和mac80211"><a href="#cfg80211和mac80211" class="headerlink" title="cfg80211和mac80211"></a>cfg80211和mac80211</h3><p>nl80211：用于对无线设备进行配置管理，它是一个基本Netlink的用户态协议(User态)</p>
+<p>cfg80211:  用于对无线设备进行配置管理。(Kernel态)</p>
+<p>在linux内核中，cfg80211子系统（include&#x2F;net&#x2F;cfg80211.h）对于开发wifi驱动非常重要</p>
+<ul>
+<li>cfg80211（内核态）向上和nl80211（用户态）通信，通信方式为netlink</li>
+<li>cfg80211（内核态）向下和mac80211（内核态）交互，再与驱动通信（softmac）</li>
+<li>cfg80211（内核态）向下也可直接与驱动交互（fullmac）</li>
+</ul>
+<p>cfg80211 subsystem介绍:  <a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/driver-api/80211/cfg80211.html">https://www.kernel.org/doc/html/latest/driver-api/80211/cfg80211.html</a></p>
+<p>mac80211中有struct ieee80211_ops结构体指针，通过注册ops成员函数的方式进行调用</p>
+<p>参考文章cfg80211 mac80211 nl80211的关系：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/liuxd3000/article/details/23761663">https://blog.csdn.net/liuxd3000/article/details/23761663</a></p>
+<h3 id="softmac和fullmac"><a href="#softmac和fullmac" class="headerlink" title="softmac和fullmac"></a>softmac和fullmac</h3><p>使用softmac方式的驱动就用到mac80211，即wifi的80211相关协议（主要是MLME）在驱动中实现</p>
+<p>使用fullmac方式的驱动就不用mac80211，即wifi的80211相关协议（主要是MLME）在固件中实现</p>
+<h3 id="wifi驱动的架构"><a href="#wifi驱动的架构" class="headerlink" title="wifi驱动的架构"></a>wifi驱动的架构</h3><p>$$<br>表1 \space \space wifi驱动的架构 \<br>\begin{array}<br>\hline<br>    cfg80211 tcp&#x2F;ip stack（cfg80211子系统） \<br>\hline<br>    common（公共层，负责通用的数据结构定义、函数） \<br>    chip（芯片层，负责区分不同芯片） \<br>    hif（接口层，负责区分不同接口，如sdio、pcie、usb） \<br>\hline<br>    wcn bsd（无线连接的板级支持包，与硬件交互）\<br>\hline<br>\end{array}<br>$$</p>
+<h2 id="realme的代码结构"><a href="#realme的代码结构" class="headerlink" title="realme的代码结构"></a>realme的代码结构</h2><p>目录结构</p>
+<pre><code class="c">.
+├── common
+├── Kconfig
+├── Makefile
+├── marlin3_sipc
+├── sc2332
+└── sc2355
+</code></pre>
+<h2 id="引用的内核文件"><a href="#引用的内核文件" class="headerlink" title="引用的内核文件"></a>引用的内核文件</h2><h3 id="cfg80211-h"><a href="#cfg80211-h" class="headerlink" title="cfg80211.h"></a>cfg80211.h</h3><pre><code class="c">//include/net/cfg80211.h
+struct cfg80211_ops &#123;
+&#125;;
+</code></pre>
+<h3 id="mac80211-h"><a href="#mac80211-h" class="headerlink" title="mac80211.h"></a>mac80211.h</h3><pre><code class="c">//include/net/mac80211.h
+struct ieee80211_ops &#123;
+&#125;;
+</code></pre>
+<h2 id="common文件夹"><a href="#common文件夹" class="headerlink" title="common文件夹"></a>common文件夹</h2><pre><code class="c">wc *.c | sort -n
+    73    163   1793 delay_work.c
+   155    493   4665 tdls.c
+   157    362   3930 msg.c
+   237    734   6268 npi.c
+   404   1120  11793 report.c
+   580   1665  13594 debug.c
+  1513   4202  41728 cfg80211.c
+  1539   4179  39733 iface.c
+  4658  12918 123504 total
+  
+wc *.h | sort -n
+    31    121    912 channel_5g.h
+    32    161   1389 report.h
+    48    142   1072 qos.h
+    59    161   1267 acs.h
+    65    202   1617 channel_2g.h
+    71    198   1512 tcp_ack.h
+    72    173   1556 npi.h
+    76    210   1865 delay_work.h
+    92    273   2310 tdls.h
+   128    385   3700 iface.h
+   170    407   3666 debug.h
+   219    666   5432 msg.h
+   242    571   5718 cmd.h
+   292    704   6718 common.h
+   355    914   7946 hif.h
+   402    998   9522 cfg80211.h
+   903   2562  25657 chip_ops.h
+  1627   4958  50291 vendor.h
+  4884  13806 132150 total
+</code></pre>
+<h3 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h3><pre><code class="makefile"># SPDX-License-Identifier: GPL-2.0-only
+
+ifeq ($(TARGET_BUILD_VARIANT),userdebug)
+ccflags-y += -DCONFIG_SPRD_WLAN_DEBUGFS
+endif
+
+obj-$(CONFIG_SPRD_WLAN)	+= sprd_wlan.o
+sprd_wlan-objs += \
+        cfg80211.o \
+        debug.o \
+        delay_work.o \
+        iface.o \
+        msg.o \
+        npi.o \
+        report.o \
+        tdls.o
+</code></pre>
+<h3 id="cfg80211-c"><a href="#cfg80211-c" class="headerlink" title="cfg80211.c"></a>cfg80211.c</h3><p>该文件1513行代码，主要组成部分：</p>
+<ul>
+<li>（1）static struct cfg80211_ops sprd_cfg80211_ops结构体指针</li>
+<li>（2）sprd_cfg80211_开头的函数</li>
+</ul>
+<pre><code class="c">
+//common\cfg80211.c
+static struct cfg80211_ops sprd_cfg80211_ops = &#123;
+    .add_key = sprd_cfg80211_add_key,
+    ......
+&#125;
+
+//common\cfg80211.c
+int sprd_cfg80211_add_key(struct wiphy *wiphy, struct net_device *ndev,
+              u8 key_index, bool pairwise, const u8 *mac_addr,
+              struct key_params *params)
+&#123;
+    return cfg80211_add_cipher_key(vif, pairwise, key_index,
+                           params-&gt;cipher, params-&gt;seq,
+                           mac_addr);
+&#125;
+
+//common\cfg80211.c
+static int cfg80211_add_cipher_key(struct sprd_vif *vif, bool pairwise,
+                   u8 key_index, u32 cipher, const u8 *key_seq,
+                   const u8 *mac_addr)
+&#123;
+    ret = sprd_add_key(vif-&gt;priv, vif,
+                   vif-&gt;key[pairwise][key_index],
+                   vif-&gt;key_len[pairwise][key_index],
+                   pairwise, key_index, key_seq,
+                   cipher_ptr, mac_addr);
+&#125;
+
+//common\chip_ops.h
+static inline int sprd_add_key(struct sprd_priv *priv, struct sprd_vif *vif,
+                   const u8 *key_data, u8 key_len, bool pairwise,
+                   u8 key_index, const u8 *key_seq, u8 cypher_type,
+                   const u8 *mac_addr)
+&#123;
+    if (priv-&gt;chip.ops-&gt;add_key)
+        return priv-&gt;chip.ops-&gt;add_key(priv, vif, key_data, key_len,
+                           pairwise, key_index, key_seq,
+                           cypher_type, mac_addr);
+
+    return 0;
+&#125;
+
+</code></pre>
+<h3 id="report-c"><a href="#report-c" class="headerlink" title="report.c"></a>report.c</h3><p>该文件404行代码，主要组成部分：</p>
+<ul>
+<li>（1）sprd_report_开头的函数</li>
+</ul>
+<p>所有函数的第一个参数都是vif，内部调用了cfg80211的api函数，例如：</p>
+<p>cfg80211_scan_done函数的声明在include\net\cfg80211.h，定义在net\wireless\scan.c</p>
+<pre><code class="c">void sprd_report_scan_done(struct sprd_vif *vif, bool abort);
+void sprd_report_sched_scan_done(struct sprd_vif *vif, bool abort);
+void sprd_report_softap(struct sprd_vif *vif, u8 is_connect, u8 *addr,
+            u8 *req_ie, u16 req_ie_len);
+void sprd_report_connection(struct sprd_vif *vif,
+                struct sprd_connect_info *conn_info,
+                u8 status_code);
+void sprd_report_disconnection(struct sprd_vif *vif, u16 reason_code);
+void sprd_report_mic_failure(struct sprd_vif *vif, u8 is_mcast, u8 key_id);
+void sprd_report_remain_on_channel_expired(struct sprd_vif *vif);
+void sprd_report_mgmt_tx_status(struct sprd_vif *vif, u64 cookie,
+                const u8 *buf, u32 len, u8 ack);
+void sprd_report_mgmt(struct sprd_vif *vif, u8 chan, const u8 *buf, size_t len);
+void sprd_report_mgmt_deauth(struct sprd_vif *vif, const u8 *buf, size_t len);
+void sprd_report_mgmt_disassoc(struct sprd_vif *vif, const u8 *buf, size_t len);
+void sprd_report_cqm(struct sprd_vif *vif, u8 rssi_event);
+</code></pre>
+<h3 id="iface-c"><a href="#iface-c" class="headerlink" title="iface.c"></a>iface.c</h3><p>该文件1539行代码，主要组成部分：</p>
+<ul>
+<li>（1）iface_开头的函数，后续不管是sdio还是sipc接口的驱动在probe时最终都会调用到该函数</li>
+</ul>
+<pre><code class="c">int sprd_iface_probe(struct platform_device *pdev,
+             struct sprd_hif_ops *hif_ops,
+             struct sprd_chip_ops *chip_ops)
+&#123;
+    int ret;
+    
+    priv = sprd_core_create(chip_ops);
+    iface_set_priv(priv);
+    platform_set_drvdata(pdev, priv);
+    
+    ret = sprd_hif_init(hif);
+    
+    ret = sprd_iface_set_power(hif, true);
+    ret = iface_core_init(&amp;pdev-&gt;dev, priv);
+    ret = iface_notify_init(priv);
+    sprd_iface_set_power(hif, false);
+    
+    return ret;
+&#125;
+</code></pre>
+<h2 id="sc2332文件夹"><a href="#sc2332文件夹" class="headerlink" title="sc2332文件夹"></a>sc2332文件夹</h2><pre><code class="shell">wc *.c | sort -n
+    55    173   1624 acs.c
+    66    214   1658 fcc.c
+   168    498   3689 qos.c
+   321    864   7507 txrx.c
+   344    982   9301 scan.c
+   370   1000  11724 init.c
+   373   1069   9473 tcp_ack.c
+   654   1582  15648 sdio.c
+   775   1910  18717 sipc.c
+  2294   6417  58301 cmdevt.c
+  2536   6523  72473 vendor.c
+  7956  21232 210115 total
+
+wc *.h | sort -n  
+   23    82   625 scan.h
+   35   102   792 fcc.h
+   39   155  1114 qos.h
+   60   218  2034 txrx.h
+  821  2557 21311 cmdevt.h
+  978  3114 25876 total
+</code></pre>
+<h3 id="Makefile-1"><a href="#Makefile-1" class="headerlink" title="Makefile"></a>Makefile</h3><pre><code class="makefile"># SPDX-License-Identifier: GPL-2.0-only
+
+SC2332_WLAN := \
+        acs.o \
+        init.o \
+        cmdevt.o \
+        qos.o \
+        scan.o \
+        tcp_ack.o \
+        txrx.o \
+        fcc.o
+
+obj-$(CONFIG_SC2332_SDIO_WLAN)	+= sc2332_sdio_wlan.o
+sc2332_sdio_wlan-objs += \
+        $(SC2332_WLAN) \
+        sdio.o
+
+sc2332_sdio_wlan-$(CONFIG_SPRD_WLAN_VENDOR_SPECIFIC)	+= vendor.o
+
+obj-$(CONFIG_SC2332_SIPC_WLAN)	+= sc2332_sipc_wlan.o
+sc2332_sipc_wlan-objs += \
+        $(SC2332_WLAN) \
+        sipc.o
+
+sc2332_sipc_wlan-$(CONFIG_SPRD_WLAN_VENDOR_SPECIFIC)	+= vendor.o
+</code></pre>
+<h3 id="init-c"><a href="#init-c" class="headerlink" title="init.c"></a>init.c</h3><p>该文件370行代码，主要组成部分：</p>
+<p>（1）struct sprd_chip_ops sc2332_chip_ops结构体指针</p>
+<pre><code class="c">//sc2332\init.c
+struct sprd_chip_ops sc2332_chip_ops = &#123;
+    .add_key = sc2332_add_key,
+&#125;
+</code></pre>
+<h3 id="cmdevt-c"><a href="#cmdevt-c" class="headerlink" title="cmdevt.c"></a>cmdevt.c</h3><p>该文件2294行代码，主要组成部分：</p>
+<ul>
+<li>（1）sc2332_开头的函数，最后都会调用send_cmd_recv_rsp接收回复</li>
+<li>（2）cmdevt_report开头的函数</li>
+</ul>
+<pre><code class="c">//common\chip_ops.h
+struct sprd_chip_ops &#123;
+    int (*add_key)(struct sprd_priv *priv, struct sprd_vif *vif,
+               const u8 *key_data, u8 key_len, bool pairwise,
+               u8 key_index, const u8 *key_seq, u8 cypher_type,
+               const u8 *mac_addr);
+&#125;
+
+//sc2332\cmdevt.c
+int sc2332_add_key(struct sprd_priv *priv, struct sprd_vif *vif,
+           const u8 *key_data, u8 key_len, bool pairwise, u8 key_index,
+           const u8 *key_seq, u8 cypher_type, const u8 *mac_addr)
+&#123;
+    return send_cmd_recv_rsp(priv, msg, NULL, NULL);
+&#125;
+
+//sc2332\cmdevt.h
+static inline int send_cmd_recv_rsp(struct sprd_priv *priv,
+                    struct sprd_msg *msg, u8 *rbuf, u16 *rlen)
+&#123;
+    return sc2332_send_cmd_recv_rsp(priv, msg, rbuf, rlen,
+                    CMD_WAIT_TIMEOUT);
+&#125;
+
+//sc2332\cmdevt.c
+int sc2332_send_cmd_recv_rsp(struct sprd_priv *priv, struct sprd_msg *msg,
+                 u8 *rbuf, u16 *rlen, unsigned int timeout)
+&#123;
+    int ret = 0;
+    
+    ret = cmdevt_send_cmd(priv, msg);
+    ret = cmdevt_recv_rsp_timeout(priv, timeout);
+    return ret;
+&#125;
+
+//sc2332\cmdevt.c
+static int cmdevt_recv_rsp_timeout(struct sprd_priv *priv, unsigned int timeout)
+&#123;
+    int ret;
+    struct sprd_cmd *cmd = &amp;priv-&gt;cmd;
+
+    ret = wait_for_completion_timeout(&amp;cmd-&gt;completed,
+                      msecs_to_jiffies(timeout));
+    ret = cmd-&gt;data ? 0 : -1;
+    return ret;
+&#125;
+</code></pre>
+<h3 id="sdio-c"><a href="#sdio-c" class="headerlink" title="sdio.c"></a>sdio.c</h3><p>该文件654行代码，主要组成部分：</p>
+<p>（1）sdio_probe函数</p>
+<p>（2）</p>
+<pre><code class="c">//sc2332\sdio.c
+module_platform_driver(sc2332_sdio_driver); //include\linux\platform_device.h
+
+//sc2332\sdio.c
+static struct platform_driver sc2332_sdio_driver = &#123;
+    .probe = sdio_probe,
+    .remove = sdio_remove,
+    .driver = &#123;
+           .owner = THIS_MODULE,
+           .name = &quot;wlan&quot;,
+           .of_match_table = sc2332_sdio_of_match,
+    &#125;,
+&#125;;
+
+//sc2332\sdio.c
+static const struct of_device_id sc2332_sdio_of_match[] = &#123;
+    &#123;.compatible = &quot;sprd,sc2332-sdio-wifi&quot;,&#125;,
+    &#123;&#125;,
+&#125;;
+
+//sc2332\sdio.c
+static int sdio_probe(struct platform_device *pdev)
+&#123;
+    return sprd_iface_probe(pdev, &amp;sc2332_sdio_ops, &amp;sc2332_chip_ops);
+    //common\iface.c
+&#125;
+</code></pre>
+<h3 id="sipc-c"><a href="#sipc-c" class="headerlink" title="sipc.c"></a>sipc.c</h3><p>该文件775行代码，主要组成部分：</p>
+<p>（1）sdio_probe函数</p>
+<pre><code class="c">//sc2332\sipc.c
+module_platform_driver(sc2332_sipc_driver);
+
+//sc2332\sipc.c
+static struct platform_driver sc2332_sipc_driver = &#123;
+    .probe = sipc_probe,
+    .remove = sipc_remove,
+    .driver = &#123;
+           .owner = THIS_MODULE,
+           .name = &quot;wlan&quot;,
+           .of_match_table = sc2332_sipc_of_match,
+    &#125;,
+&#125;;
+
+//sc2332\sipc.c
+static const struct of_device_id sc2332_sipc_of_match[] = &#123;
+    &#123;.compatible = &quot;sprd,sc2332-sipc-wifi&quot;,&#125;,
+    &#123;&#125;,
+&#125;;
+
+//sc2332\sipc.c
+static int sipc_probe(struct platform_device *pdev)
+&#123;
+    return sprd_iface_probe(pdev, &amp;sc2332_sipc_ops, &amp;sc2332_chip_ops);
+    //common\iface.c
+&#125;
+</code></pre>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 jaytp@qq.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+    <div id="comments"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+<script type="text/javascript">
+    $.getScript('/js/gitalk.js', function () {
+        var gitalk = new Gitalk({
+            clientID: '08960ab58924fe2bf2c3',
+            clientSecret: '76f8d48d1bccd444b0f8c9fcaf8de12a212963aa',
+            repo: 'lishan666.github.io',
+            owner: 'lishan666',
+            admin: ['lishan666'],
+            id: decodeURI(location.pathname),
+            distractionFreeMode: 'true',
+            language: 'zh-CN',
+            perPage: parseInt('10',10)
+        })
+        gitalk.render('comments')
+    })
+</script>
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2016-2020 Yelog
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().trim().split('\n').length, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 18px 3px 15px 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: ;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
